@@ -20,6 +20,18 @@ use defmt::*;
 use embassy_executor::Spawner;
 use embassy_nrf::interrupt::Priority;
 
+extern {
+    fn hello() -> i32;
+}
+
+pub fn call_clib() {
+    unsafe {
+        
+        let val = hello();
+        println!("calue from c library: {:?}", val);
+    }
+}
+
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     info!("Async + SoftDevice Demo");
@@ -30,6 +42,9 @@ async fn main(spawner: Spawner) {
     config.time_interrupt_priority = Priority::P2;
     let p = embassy_nrf::init(config);
 
+
+    call_clib();
+    
 
 
 /*

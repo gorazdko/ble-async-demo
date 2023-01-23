@@ -10,6 +10,9 @@
 
 use std::{env, fs::File, io::Write, path::PathBuf};
 
+extern crate bindgen;
+use bindgen::CargoCallbacks;
+
 fn main() {
     // Put `memory.x` in our output directory and ensure it's
     // on the linker search path.
@@ -35,4 +38,16 @@ fn main() {
     // here, we ensure the build script is only re-run when
     // `memory.x` is changed.
     println!("cargo:rerun-if-changed=memory.x");
+
+
+
+
+
+    cc::Build::new()
+    .file("hello.c")
+    .compile("hello");
+
+    println!("hello target crated");
+
+
 }
