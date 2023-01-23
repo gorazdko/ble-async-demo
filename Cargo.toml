@@ -14,7 +14,7 @@ name = "integration"
 harness = false
 
 [features]
-default = ["microbit-v2"]
+default = ["nrf52840dk"]
 nrf52dk = ["embassy-nrf/nrf52832", "nrf-softdevice/nrf52832", "nrf-softdevice/s132"]
 microbit-v2 = ["embassy-nrf/nrf52833", "nrf-softdevice/nrf52833", "nrf-softdevice/s140"]
 nrf52840dk = ["embassy-nrf/nrf52840", "nrf-softdevice/nrf52840", "nrf-softdevice/s140"]
@@ -34,6 +34,8 @@ nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice", feature
 futures = { version = "0.3.5", default-features = false }
 heapless = { version = "0.7.16", features = ["defmt-impl"] }
 static_cell = "1.0.0"
+nrfxlib-sys = "2.1"
+
 
 [dev-dependencies]
 defmt-test = "0.3"
