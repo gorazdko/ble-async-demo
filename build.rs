@@ -44,7 +44,7 @@ fn main() {
 
 
     cc::Build::new()
-    .file("hello.c")
+    .file("hello/hello.c")
     .compile("hello");
 
     println!("hello target crated");
