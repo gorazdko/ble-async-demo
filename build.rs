@@ -45,6 +45,7 @@ fn main() {
 
     cc::Build::new()
     .file("hello/hello.c")
+    .file("hello/myled.c")
     .compile("hello");
 
     println!("hello target crated");

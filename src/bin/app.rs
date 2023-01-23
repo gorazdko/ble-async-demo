@@ -20,8 +20,18 @@ use defmt::*;
 use embassy_executor::Spawner;
 use embassy_nrf::interrupt::Priority;
 
+//int hello();
+//int mydelay();
+//void delay0(void (*rust_delay)());
+
+fn rust_delay() {
+ info!("IT WORKS!!!");
+}
+
 extern {
     fn hello() -> i32;
+    fn mydelay() -> i32;
+    fn delay0(f: fn());
 }
 
 pub fn call_clib() {
@@ -29,6 +39,9 @@ pub fn call_clib() {
         
         let val = hello();
         println!("calue from c library: {:?}", val);
+
+        delay0(rust_delay);
+
     }
 }
 
