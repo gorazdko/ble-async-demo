@@ -119,6 +119,8 @@ extern "C" {
     let length = buf.len();
     let ptr = buf.as_ptr();
 
+
+    // function prototype found in /home/gorazd/Projects/ble-async-demo/target/thumbv7em-none-eabihf/debug/build/nrfxlib-sys-849014581ba04543/out/bindings.rs
     let res : &[u8] = unsafe {sys::ocrypto_sha1(ptr2 as *mut _, ptr as *const _, length as usize);
         core::slice::from_raw_parts_mut(ptr2, buf2.len() as usize)
     };
