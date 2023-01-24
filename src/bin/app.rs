@@ -199,7 +199,8 @@ extern "C" {
 
 
     // Create BLE central device:
-    unwrap!(spawner.spawn(ble_central_scan(sd)));
+    //unwrap!(spawner.spawn(ble_central_scan(sd)));
+    ble_central_scan(sd).await;
 
     // Wait for a message...
     loop {
@@ -221,14 +222,17 @@ extern "C" {
 
 
 use nrf_softdevice::{
-    Softdevice,
+    Softdevice, raw
 };
 use nrf_softdevice::ble::central;
 use core::{mem, slice, str};
 
+
+
+
 // GATT server task. When there is a new connection, this passes the connection to conn_task.
-#[embassy_executor::task]
-pub async fn ble_central_scan(sd: &'static Softdevice) {
+/////[embassy_executor::task]
+async fn ble_central_scan(sd: &'static Softdevice)  {
     let config = central::ScanConfig::default();
     let res = central::scan(sd, &config, |params| unsafe {
         info!("AdvReport!");
@@ -264,11 +268,19 @@ pub async fn ble_central_scan(sd: &'static Softdevice) {
             data = &data[len + 1..];
 
             if key == 9 {
-               let name = str::from_utf8(value).unwrap();
-               info!("name {}", name);
+               let name = str::from_utf8(value).unwrap();  //unsafe?
+
+               if name == "GorazdPeriph" { 
+                  info!("name {}. About to stop scanning...", name); 
+                  return Some(0); // Have to return Some(), otherwise future will be pending, in progress
+                  
+                }
+
             }
         }
         None
     })
     .await;
+    info!("scan stop!");
+    let _ret = unsafe { raw::sd_ble_gap_scan_stop() };
     unwrap!(res);}
