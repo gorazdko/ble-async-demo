@@ -45,6 +45,10 @@ pub fn call_clib() {
     }
 }
 
+
+
+
+
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     info!("Async + SoftDevice Demo");
@@ -193,6 +197,10 @@ extern "C" {
     // Run UART RX task
     unwrap!(spawner.spawn(uart_rx_handler::run(rx, publisher_2)));
 
+
+    // Create BLE central device:
+    unwrap!(spawner.spawn(ble_central_scan(sd)));
+
     // Wait for a message...
     loop {
         match subscriber.next_message_pure().await {
@@ -210,3 +218,14 @@ extern "C" {
         }
     }
 }
+
+
+use nrf_softdevice::{
+    Softdevice,
+};
+
+// GATT server task. When there is a new connection, this passes the connection to conn_task.
+#[embassy_executor::task]
+pub async fn ble_central_scan(sd: &'static Softdevice) {
+    loop {
+    }}
