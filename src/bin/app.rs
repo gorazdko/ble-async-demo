@@ -223,9 +223,52 @@ extern "C" {
 use nrf_softdevice::{
     Softdevice,
 };
+use nrf_softdevice::ble::central;
+use core::{mem, slice, str};
 
 // GATT server task. When there is a new connection, this passes the connection to conn_task.
 #[embassy_executor::task]
 pub async fn ble_central_scan(sd: &'static Softdevice) {
-    loop {
-    }}
+    let config = central::ScanConfig::default();
+    let res = central::scan(sd, &config, |params| unsafe {
+        info!("AdvReport!");
+        info!(
+            "type: connectable={} scannable={} directed={} scan_response={} extended_pdu={} status={}",
+            params.type_.connectable(),
+            params.type_.scannable(),
+            params.type_.directed(),
+            params.type_.scan_response(),
+            params.type_.extended_pdu(),
+            params.type_.status()
+        );
+        info!(
+            "addr: resolved={} type={} addr={:x}",
+            params.peer_addr.addr_id_peer(),
+            params.peer_addr.addr_type(),
+            params.peer_addr.addr
+        );
+        let mut data = slice::from_raw_parts(params.data.p_data, params.data.len as usize);
+        while data.len() != 0 {
+            let len = data[0] as usize;
+            if data.len() < len + 1 {
+                warn!("Advertisement data truncated?");
+                break;
+            }
+            if len < 1 {
+                warn!("Advertisement data malformed?");
+                break;
+            }
+            let key = data[1];
+            let value = &data[2..len + 1];
+            info!("value {}: {:x}", key, value);
+            data = &data[len + 1..];
+
+            if key == 9 {
+               let name = str::from_utf8(value).unwrap();
+               info!("name {}", name);
+            }
+        }
+        None
+    })
+    .await;
+    unwrap!(res);}
