@@ -226,7 +226,7 @@ extern "C" {
 use nrf_softdevice::{
     Softdevice, raw
 };
-use nrf_softdevice::ble::central;
+use nrf_softdevice::ble::{central, Address, gatt_client, AddressType};
 use core::{mem, slice, str};
 
 
@@ -274,7 +274,8 @@ async fn ble_central_scan(sd: &'static Softdevice)  {
 
                if name == "GorazdPeriph" { 
                   info!("name {}. About to stop scanning...", name); 
-                  return Some(0); // Have to return Some(), otherwise future will be pending, in progress
+                  //return Some(0); // Have to return Some(), otherwise future will be pending, in progress
+                  return Some(Address::from_raw(params.peer_addr));
                   
                 }
 
@@ -289,4 +290,32 @@ async fn ble_central_scan(sd: &'static Softdevice)  {
     // connect to the device TODO try connecting to 2 devices
 
 
-    unwrap!(res);}
+    let address = unwrap!(res);
+    let addrs = &[&address];
+
+    let mut config = central::ConnectConfig::default();
+    config.scan_config.whitelist = Some(addrs);
+
+    let conn = unwrap!(central::connect(sd, &config).await);
+    info!("connected");
+
+    let client: HeartRaterviceClient = unwrap!(gatt_client::discover(&conn).await);
+
+    // Read
+    let val = unwrap!(client.location_read().await);
+    info!("read location: {}", val);
+
+    loop {}
+
+
+}
+
+
+
+#[nrf_softdevice::gatt_client(uuid = "180D")]
+struct HeartRaterviceClient {
+    #[characteristic(uuid = "2a38", read)]
+    location: u8,
+    #[characteristic(uuid = "2a37", notify)]
+    heart_rate : u16
+}

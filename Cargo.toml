@@ -30,7 +30,7 @@ embassy-time = { version = "*", features = ["nightly", "defmt", "defmt-timestamp
 embassy-sync = { version = "*", features = ["nightly", "defmt"] }
 embassy-futures = { version = "*" }
 embassy-nrf = { version = "*", features = ["nightly", "time-driver-rtc1", "defmt", "gpiote", "unstable-traits"] }
-nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice", features = ["defmt", "ble-gatt-server", "ble-peripheral", "critical-section-impl", "ble-central"] }
+nrf-softdevice = { git = "https://github.com/embassy-rs/nrf-softdevice", features = ["defmt", "ble-gatt-server", "ble-peripheral", "critical-section-impl", "ble-central", "ble-gatt-client"] }
 futures = { version = "0.3.5", default-features = false }
 heapless = { version = "0.7.16", features = ["defmt-impl"] }
 static_cell = "1.0.0"
