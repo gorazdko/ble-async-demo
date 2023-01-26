@@ -3,6 +3,8 @@
 #![no_main]
 #![no_std]
 
+
+pub mod device_central;
 pub mod ble;
 pub mod button_handler;
 pub mod device;
