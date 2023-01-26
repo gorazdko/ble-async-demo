@@ -13,6 +13,8 @@ pub async fn ble_central_scan(spawner: Spawner, sd: &'static Softdevice)  {
     let config = central::ScanConfig::default();
 
     loop{
+
+        Timer::after(Duration::from_millis(500)).await;
         let res = central::scan(sd, &config, |params| unsafe {
             info!("AdvReport!");
             info!(

@@ -1,6 +1,6 @@
 //! BLE GATT services
 
-/// UART service
+/// UART service  // test with GtkTerm usually ttyACM0
 #[nrf_softdevice::gatt_service(uuid = "9e7312e1-2354-11eb-9f10-fbc30a62cf37")]
 pub struct UartService {
     #[characteristic(uuid = "9e7312e1-2354-11eb-9f10-fbc30a63cf38", read, write, notify)]
