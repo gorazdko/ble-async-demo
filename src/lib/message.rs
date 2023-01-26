@@ -34,7 +34,10 @@ pub enum AppEvent {
     Button(PinState),
     BleBytesWritten(heapless::Vec<u8, 32>),
     UartRxWritten(heapless::Vec<u8, 32>),
-    LedFlash(PinState),
+    LedFlashWrite(PinState),
+    LedFlashReq,
+    LedFlashRes(PinState),
+
 }
 
 /// GPIO pin state

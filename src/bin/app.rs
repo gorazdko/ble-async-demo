@@ -212,6 +212,9 @@ extern "C" {
     // Create BLE central device to connect and read some heart rate characteristic every 10 seconds:
     unwrap!(spawner.spawn(conn::ble_central_scan(spawner, sd)));
 
+    // Create task for writing and reading (wip) to flash
+    unwrap!(spawner.spawn(server::flash_task(sd)));
+
     //info!("Going into loop..");
 
     // Wait for a message...
@@ -231,5 +234,8 @@ extern "C" {
         }
     }
 }
+
+
+
 
 

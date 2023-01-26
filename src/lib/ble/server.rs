@@ -93,9 +93,15 @@ async fn conn_task(
         }
         ServerEvent::Led(LedServiceEvent::StateWrite(requested_state)) => {
             block_on(publisher.publish(AppEvent::Led(PinState::from(requested_state))));
+            // write led state also to flash:
+            block_on(publisher.publish(AppEvent::LedFlashWrite(PinState::from(requested_state))));
         }
         ServerEvent::Button(ButtonServiceEvent::StateCccdWrite { notifications }) => {
             info!("Button notifications: {}", notifications);
+
+            block_on(publisher.publish(AppEvent::LedFlashReq));
+            //TODO: should wait for response being published from the flash task (aslo todo)
+            // and put the reposnse in to button characteristic
         }
     });
 
@@ -143,7 +149,15 @@ use embedded_storage_async::nor_flash::*;
 
 
 
-async fn flash_write(spawner: Spawner,mut subscriber: AppSubscriber, sd: &'static Softdevice) {
+// mogoc flash_task_run(), da ga klices v main brez argumetnov?
+// connection has to be sent probably over the pubsub channel not as a function variable
+#[embassy_executor::task(pool_size = 1)]
+pub async fn flash_task(/*server: &'a Server,*/  /*conn: &'a Connection, */ sd: &'static Softdevice) {
+
+
+    let  publisher = unwrap!(MESSAGE_BUS.publisher());
+    let mut subscriber = unwrap!(MESSAGE_BUS.subscriber());
+
 
     let f = Flash::take(sd);
     pin_mut!(f);
@@ -152,19 +166,39 @@ async fn flash_write(spawner: Spawner,mut subscriber: AppSubscriber, sd: &'stati
     loop {
 
         match subscriber.next_message_pure().await { 
-            AppEvent::LedFlash(state) => {
-
-                info!("starting flash erase");
+            AppEvent::LedFlashWrite(state) => {
+                // event is genreated by led service
+                info!("+++starting flash erase");
                 unwrap!(f.as_mut().erase(0x80000, 0x81000).await);
 
                 let val : bool = state.into();  // dumb casting
                 let val = if val == true{ 1 as u8} else { 0 as u8};
 
-                info!("starting flash write");
-                unwrap!(f.as_mut().write(0x80000, &[val]).await);
+                info!("++++starting flash write");  // write 4 bytes in order for the chunk to be aligned
+                unwrap!(f.as_mut().write(0x80000, &[val, 0 , 0 ,0]).await);
 
 
             }
+
+            // TODO
+            AppEvent::LedFlashReq => { 
+                info!("read flash..");
+
+                let mut val : [u8; 4] = [0, 0, 0 ,0];
+                
+                unwrap!(f.read(0x80000, &mut val).await);
+
+                info!("read flash {:?}", val);
+
+                /* 
+                let val : bool = if val[0] == 0 {false} else {true};
+
+                if let Err(e) = server.button.state_notify(conn, val) {
+                    error!("{:?}", e);
+                }
+                */
+            }
+     
             _ => (),
         }
 
