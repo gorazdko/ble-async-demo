@@ -110,6 +110,8 @@ dependencies = [
  "embassy-nrf",
  "embassy-sync",
  "embassy-time",
+ "embedded-storage",
+ "embedded-storage-async",
  "futures",
  "heapless",
  "nrf-softdevice",

@@ -14,7 +14,7 @@ use nrf_softdevice::{
         BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE, BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE,
         BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, BLE_GAP_AD_TYPE_FLAGS,
     },
-    Softdevice,
+    Softdevice, Flash
 };
 use static_cell::StaticCell;
 
@@ -135,4 +135,39 @@ async fn subscriber_task<'a>(
             _ => (),
         }
     }
+}
+
+
+
+use embedded_storage_async::nor_flash::*;
+
+
+
+async fn flash_write(spawner: Spawner,mut subscriber: AppSubscriber, sd: &'static Softdevice) {
+
+    let f = Flash::take(sd);
+    pin_mut!(f);
+
+
+    loop {
+
+        match subscriber.next_message_pure().await { 
+            AppEvent::LedFlash(state) => {
+
+                info!("starting flash erase");
+                unwrap!(f.as_mut().erase(0x80000, 0x81000).await);
+
+                let val : bool = state.into();  // dumb casting
+                let val = if val == true{ 1 as u8} else { 0 as u8};
+
+                info!("starting flash write");
+                unwrap!(f.as_mut().write(0x80000, &[val]).await);
+
+
+            }
+            _ => (),
+        }
+
+    }
+
 }
