@@ -77,7 +77,7 @@ pub async fn ble_central_scan(spawner: Spawner, sd: &'static Softdevice)  {
 
         use embassy_time::{Duration, Timer};
 
-        Timer::after(Duration::from_millis(10000)).await;
+        Timer::after(Duration::from_millis(60000)).await;
 
         info!("******END OF SLEEP");
 }

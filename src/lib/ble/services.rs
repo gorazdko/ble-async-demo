@@ -1,7 +1,7 @@
 //! BLE GATT services
 
 /// UART service
-#[nrf_softdevice::gatt_service(uuid = "9e7312e1-2354-11eb-9f10-fbc30a62cf38")]
+#[nrf_softdevice::gatt_service(uuid = "9e7312e1-2354-11eb-9f10-fbc30a62cf37")]
 pub struct UartService {
     #[characteristic(uuid = "9e7312e1-2354-11eb-9f10-fbc30a63cf38", read, write, notify)]
     pub bytes: heapless::Vec<u8, 32>,
@@ -15,7 +15,7 @@ pub struct LedService {
 }
 
 /// Button service
-#[nrf_softdevice::gatt_service(uuid = "9e7312e3-2354-11eb-9f10-fbc30a62cf38")]
+#[nrf_softdevice::gatt_service(uuid = "9e7312e3-2354-11eb-9f10-fbc30a62cf39")]
 pub struct ButtonService {
     #[characteristic(uuid = "9e7312e3-2354-11eb-9f10-fbc30a63cf38", read, notify)]
     pub state: bool,
