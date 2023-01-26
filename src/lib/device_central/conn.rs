@@ -5,7 +5,7 @@ use nrf_softdevice::ble::{central, Address, gatt_client, AddressType, Connection
 use core::{mem, slice, str};
 use defmt::*;
 use embassy_executor::Spawner;
-
+use embassy_time::{Duration, Timer};
 
 // GATT server task. When there is a new connection, this passes the connection to conn_task.
 #[embassy_executor::task]
@@ -49,7 +49,9 @@ pub async fn ble_central_scan(spawner: Spawner, sd: &'static Softdevice)  {
                 if key == 9 {
                 let name = str::from_utf8(value).unwrap();  //unsafe?
 
-                    if name == "GorazdPeriph" {
+                    info!("**ame {:?}", name);
+
+                    if name == "Galaxy A02s" {
                         info!("name {}. About to stop scanning...", name);
                         //return Some(0); // Have to return Some(), otherwise future will be pending, in progress
                         return Some(Address::from_raw(params.peer_addr));
@@ -72,12 +74,17 @@ pub async fn ble_central_scan(spawner: Spawner, sd: &'static Softdevice)  {
         //let mut config = central::ConnectConfig::default();
         //config.scan_config.whitelist = Some(addrs);
 
-        unwrap!(spawner.spawn(connection_task(sd, address)));
+
+        Timer::after(Duration::from_millis(100)).await;
+        //unwrap!(spawner.spawn(connection_task(sd, address)));
+
+        connection_task(sd, address).await;
+
         info!("***END OF A TAKS");
 
-        use embassy_time::{Duration, Timer};
+       
 
-        Timer::after(Duration::from_millis(60000)).await;
+        Timer::after(Duration::from_millis(10000)).await;
 
         info!("******END OF SLEEP");
 }
@@ -88,7 +95,7 @@ pub async fn ble_central_scan(spawner: Spawner, sd: &'static Softdevice)  {
 //use crate::message::{ MESSAGE_BUS};
 
 /// BLE connection task. Max 3 concurrent executions.
-#[embassy_executor::task(pool_size = 2)]
+///#[embassy_executor::task(pool_size = 2)]
 async fn connection_task(
      sd: &'static Softdevice, address: Address)
     /*publisher: AppPublisher,
@@ -104,9 +111,21 @@ async fn connection_task(
 
     let client : HeartRateserviceClient= unwrap!(gatt_client::discover(&conn).await);
 
+    loop { 
+
     // Read
-    let val = unwrap!(client.location_read().await);
-    info!("read location: {}", val);
+    //let val = unwrap!(client.location_read().await);
+
+    let val = client.location_read().await;
+
+    if val.is_err() {return ();}  // we drop everything and start with scanning 
+
+    info!("read location: {}", val.unwrap());
+    Timer::after(Duration::from_millis(6000)).await;
+
+    }
+
+
 
     // notifications:
 
