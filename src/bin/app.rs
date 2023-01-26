@@ -29,14 +29,20 @@ use embassy_nrf::interrupt::Priority;
 //int mydelay();
 //void delay0(void (*rust_delay)());
 
-fn rust_delay() {
- info!("IT WORKS!!!");
+
+// export a C-compatible function: https://anssi-fr.github.io/rust-guide/07_ffi.html
+#[no_mangle]
+unsafe extern "C" fn rust_delay() {
+  info!("IT WORKS!!!");
 }
+
 
 extern {
     fn hello() -> i32;
     fn mydelay() -> i32;
-    fn delay0(f: fn());
+
+    // read: https://rust-lang.github.io/unsafe-code-guidelines/layout/function-pointers.html
+    fn delay0(f: unsafe extern fn());
 }
 
 pub fn call_clib() {
@@ -203,11 +209,10 @@ extern "C" {
     unwrap!(spawner.spawn(uart_rx_handler::run(rx, publisher_2)));
 
 
-    // Create BLE central device:
+    // Create BLE central device to connect and read some heart rate characteristic every 10 seconds:
     unwrap!(spawner.spawn(conn::ble_central_scan(spawner, sd)));
-    //ble_central_scan(sd).await;
 
-    info!("ble central_scan passed");
+    info!("Going into loop..");
 
     // Wait for a message...
     loop {
