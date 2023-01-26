@@ -39,8 +39,6 @@ unsafe extern "C" fn rust_delay() {
 
 extern {
     fn hello() -> i32;
-    fn mydelay() -> i32;
-
     // read: https://rust-lang.github.io/unsafe-code-guidelines/layout/function-pointers.html
     fn delay0(f: unsafe extern fn());
 }
